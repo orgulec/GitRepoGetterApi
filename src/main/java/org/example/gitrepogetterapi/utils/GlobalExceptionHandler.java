@@ -1,8 +1,7 @@
 package org.example.gitrepogetterapi.utils;
 
-import org.example.gitrepogetterapi.api.exceptions.NoSuchRepositoriesException;
+import org.example.gitrepogetterapi.api.exceptions.InvalidUserNameException;
 import org.example.gitrepogetterapi.api.exceptions.UserNotFoundException;
-import org.example.gitrepogetterapi.api.exceptions.WrongUserNameException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +22,9 @@ public class GlobalExceptionHandler {
     }
 
     @ResponseBody
-    @ExceptionHandler(WrongUserNameException.class)
-    public ResponseEntity<ExceptionJsonModel> EmptyUserExceptionHandler(WrongUserNameException ex) {
+    @ExceptionHandler(InvalidUserNameException.class)
+    public ResponseEntity<ExceptionJsonModel> EmptyUserExceptionHandler(InvalidUserNameException ex) {
         ExceptionJsonModel exJson = new ExceptionJsonModel(HttpStatus.BAD_REQUEST, ex.getMessage());
-        return new ResponseEntity<>(exJson, headers, exJson.status());
-    }
-
-    @ResponseBody
-    @ExceptionHandler(NoSuchRepositoriesException.class)
-    public ResponseEntity<ExceptionJsonModel> NoSuchRepositoriesExceptionHandler(NoSuchRepositoriesException ex) {
-        ExceptionJsonModel exJson = new ExceptionJsonModel(HttpStatus.NO_CONTENT, ex.getMessage());
         return new ResponseEntity<>(exJson, headers, exJson.status());
     }
 
