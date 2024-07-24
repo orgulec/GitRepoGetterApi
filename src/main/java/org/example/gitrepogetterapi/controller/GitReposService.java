@@ -18,17 +18,22 @@ import java.util.List;
 @RequiredArgsConstructor
 class GitReposService {
 
-    private final DtoMapper mapper = new DtoMapper();
     private final String BASE_GIT_URL = "https://api.github.com/";
     private final HttpClientService<GitRepo[]> repoClientService = new HttpClientService<>();
     private final HttpClientService<RepoBranch[]> branchClientService = new HttpClientService<>();
+    private final DtoMapper mapper = new DtoMapper();
 
-    List<GitReposDto> getReposAndBranchesFromApiByUser(String userName) {
+    List<GitReposDto> getReposAndBranchesFromApiByUser(String userName) //{
+        throws WrongUserNameException, NoSuchRepositoriesException {
         if (userName.isEmpty() || !userName.matches("[a-zA-Z0-9-_]+")) {
             throw new WrongUserNameException();
         }
+        String url = BASE_GIT_URL + "users/" + userName + "/repos";
 
-        List<GitRepo> repositories = getRepositories(userName);
+        List<GitRepo> repositories = Arrays.stream(
+                repoClientService.makeHttpRequestGetHttpResponse(url, GitRepo[].class))
+                .toList();
+
         List<List<RepoBranch>> branchesData = new ArrayList<>();
 
         if (repositories.isEmpty()) {
@@ -40,18 +45,12 @@ class GitReposService {
         return mapper.mapReposAndBranchesIntoDto(repositories, branchesData);
     }
 
-    List<GitRepo> getRepositories(String userName) {
-        String url = BASE_GIT_URL + "users/" + userName + "/repos";
-
-        GitRepo[] gitRepos = repoClientService.makeHttpRequestGetHttpResponse(url, GitRepo[].class);
-        return Arrays.stream(gitRepos).toList();
-    }
-
     List<RepoBranch> getBranchesToRepositories(String userName, String repoName) {
         String url = BASE_GIT_URL + "repos/" + userName + "/" + repoName + "/branches";
 
-        RepoBranch[] repoBranches = branchClientService.makeHttpRequestGetHttpResponse(url, RepoBranch[].class);
-        List<RepoBranch> branchList = Arrays.stream(repoBranches).toList();
+        List<RepoBranch> branchList = Arrays.stream(
+                branchClientService.makeHttpRequestGetHttpResponse(url, RepoBranch[].class))
+                .toList();
         branchList.forEach(br -> br.setRepoName(repoName));
         return branchList;
     }

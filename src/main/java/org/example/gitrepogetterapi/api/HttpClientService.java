@@ -1,6 +1,8 @@
 package org.example.gitrepogetterapi.api;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import org.example.gitrepogetterapi.api.exceptions.NoSuchRepositoriesException;
 import org.example.gitrepogetterapi.api.exceptions.UserNotFoundException;
 import org.example.gitrepogetterapi.api.exceptions.WrongUserNameException;
 import org.springframework.stereotype.Component;
@@ -21,16 +23,24 @@ public class HttpClientService<T> {
                 .GET()
                 .build();
 
-        HttpResponse<String> response;
+        HttpResponse<String> httpResponse;
         try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new UserNotFoundException();
-            }
-            Gson gson = new Gson();
-            return gson.fromJson(response.body(), responseClass);
+            httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             throw new WrongUserNameException();
+        }
+        return returnObjectFromJson(responseClass, httpResponse);
+    }
+
+    T returnObjectFromJson(Class<T> responseClass, HttpResponse<String> httpResponse) {
+        if (httpResponse.statusCode() != 200) {
+            throw new UserNotFoundException();
+        }
+        Gson gson = new Gson();
+        try {
+            return gson.fromJson(httpResponse.body(), responseClass);
+        } catch (JsonSyntaxException e) {
+            throw new NoSuchRepositoriesException("No repositories founded.");
         }
     }
 }

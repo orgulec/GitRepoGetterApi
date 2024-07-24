@@ -17,15 +17,12 @@ public class DtoMapper {
                 .forEach(repo -> resultDtoList
                         .add(new GitReposDto(repo.name(), repo.owner().login())));
 
-        resultDtoList.forEach(dto -> {
-            branchesData.forEach(branches -> {
-                branches.stream()
+        resultDtoList.forEach(dto -> branchesData
+                .forEach(branches -> branches.stream()
                         .filter(branch -> branch.getRepoName().equals(dto.getName()))
                         .forEach(branch -> dto.getBranches()
                                 .add(new GitBranchDto(branch.getName(), branch.getCommit().sha()))
-                        );
-            });
-        });
+                )));
         return resultDtoList;
     }
 }

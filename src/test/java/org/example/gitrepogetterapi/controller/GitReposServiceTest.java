@@ -1,5 +1,6 @@
 package org.example.gitrepogetterapi.controller;
 
+import lombok.SneakyThrows;
 import org.example.gitrepogetterapi.api.HttpClientService;
 import org.example.gitrepogetterapi.api.dto.DtoMapper;
 import org.example.gitrepogetterapi.api.dto.GitBranchDto;
@@ -19,7 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,16 +80,21 @@ class GitReposServiceTest {
         //given
         String userName = "testUser";
         //when
-//        when(apiService.getRepositories(userName)).thenReturn(new ArrayList<>());
+//        when(mockRepoClientService.makeHttpRequestGetHttpResponse(userName,GitRepo[].class)).thenReturn(new GitRepo[]{});
+
         //then
         assertThrows(NoSuchRepositoriesException.class, () -> gitReposService.getReposAndBranchesFromApiByUser(userName));
     }
+    @SneakyThrows
     @Test
     void getReposAndBranchesFromApiByUser_shouldThrowUserNotFoundExceptionWhenUserDoesntExists() {
         //given
         String userName = "testUser";
         //when
 //        when(apiService.getRepositories(userName)).thenThrow(UserNotFoundException.class);
+//        when(mockRepoClientService.makeHttpRequestGetHttpResponse(any(),any())).thenThrow(UserNotFoundException.class);
+        when(mockRepoClientService.makeHttpRequestGetHttpResponse(userName,GitRepo[].class)).thenThrow(UserNotFoundException.class);
+
         //then
         assertThrows(UserNotFoundException.class, () -> gitReposService.getReposAndBranchesFromApiByUser(userName));
     }
