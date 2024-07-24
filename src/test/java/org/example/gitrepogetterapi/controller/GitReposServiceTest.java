@@ -20,8 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.net.http.HttpClient;
-import java.net.http.HttpResponse;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,11 +33,12 @@ class GitReposServiceTest {
     @InjectMocks
     private GitReposService gitReposService;
     @Mock
-    private HttpClientService<GitRepo[]> mockRepoClientService;// = new HttpClientService<>();
+    private HttpClientService<GitRepo[]> mockRepoClientService;
     @Mock
     private HttpClientService<RepoBranch[]> mockBranchClientService;
     @Mock
     private DtoMapper mapper;
+
     @Test
     void getReposAndBranchesFromApiByUser_shouldReturnListOfGitReposDto() {
         //given
@@ -51,16 +51,18 @@ class GitReposServiceTest {
         RepoBranch mockBranch = new RepoBranch(branchName, new BranchCommit(commitSha));
         mockBranch.setRepoName(repoName);
 
-        GitRepo[] mockRepositoriesList = {mockRepo};
-        RepoBranch[] mockBranchList = {mockBranch};
+        GitRepo[] mockReposArray = {mockRepo};
+        RepoBranch[] mockBranchArray = {mockBranch};
+        List<GitRepo> mockRepoList = Arrays.stream(mockReposArray).toList();
+        List<RepoBranch> mockBranchList = Arrays.stream(mockBranchArray).toList();
 
         GitReposDto expectedDto = new GitReposDto(repoName, userName);
         expectedDto.setBranches(List.of(new GitBranchDto(branchName, commitSha)));
         List<GitReposDto> expectedDtoList = List.of(expectedDto);
 
         //when
-        when(mockRepoClientService.makeHttpRequestGetHttpResponse(userName,GitRepo[].class)).thenReturn(mockRepositoriesList);
-        when(mockBranchClientService.makeHttpRequestGetHttpResponse(userName,RepoBranch[].class)).thenReturn(mockBranchList);
+        when(mockRepoClientService.makeHttpRequestGetHttpResponse(any(),any())).thenReturn(mockReposArray);
+        when(mockBranchClientService.makeHttpRequestGetHttpResponse(any(),any())).thenReturn(mockBranchArray);
         when(mapper.mapReposAndBranchesIntoDto(any(),any())).thenReturn(expectedDtoList);
 
         //then

@@ -23,8 +23,7 @@ class GitReposService {
     private final HttpClientService<RepoBranch[]> branchClientService = new HttpClientService<>();
     private final DtoMapper mapper = new DtoMapper();
 
-    List<GitReposDto> getReposAndBranchesFromApiByUser(String userName) //{
-        throws WrongUserNameException, NoSuchRepositoriesException {
+    List<GitReposDto> getReposAndBranchesFromApiByUser(String userName) {
         if (userName.isEmpty() || !userName.matches("[a-zA-Z0-9-_]+")) {
             throw new WrongUserNameException();
         }
@@ -35,13 +34,9 @@ class GitReposService {
                 .toList();
 
         List<List<RepoBranch>> branchesData = new ArrayList<>();
+        repositories.forEach(repo ->
+                branchesData.add(getBranchesToRepositories(userName, repo.name())));
 
-        if (repositories.isEmpty()) {
-            throw new NoSuchRepositoriesException(userName);
-        } else {
-            repositories.forEach(repo ->
-                    branchesData.add(getBranchesToRepositories(userName, repo.name())));
-        }
         return mapper.mapReposAndBranchesIntoDto(repositories, branchesData);
     }
 
