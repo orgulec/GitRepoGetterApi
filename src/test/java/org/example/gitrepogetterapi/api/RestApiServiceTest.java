@@ -31,7 +31,7 @@ class RestApiServiceTest {
     private final String BASE_URL = "https://api.github.com";
 
     @Test
-    void getRepositoriesByUsername_shouldGetDataByUsername() throws JsonProcessingException {
+    void getRepositoriesByUsername_shouldGetDataByUserName() throws JsonProcessingException {
         //given
         String userName = "userTest";
         GitRepo[] data = {
@@ -49,7 +49,7 @@ class RestApiServiceTest {
     }
 
     @Test
-    void getBranchesByUsernameAndRepository_shouldGetDataByUsernameAndRepoName() throws JsonProcessingException {
+    void getBranchesByUsernameAndRepository_shouldGetDataByUserNameAndRepoName() throws JsonProcessingException {
         //given
         String userName = "userTest";
         String repoName = "repoTest";

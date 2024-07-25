@@ -17,6 +17,13 @@ class GitRestController {
 
     private final GitRestService restService;
 
+    /**
+     * Retrieves all public repositories from gitHub api by username.
+     *
+     * @param userName The specific username of the gitHub user.
+     * @return ResponseEntity containing a list of repositories and their branches set in Dto object.
+     * @throws UserNotFoundException with status 404 if userName is not found or InvalidUserNameException with status 400 if userName is not correct
+     */
     @GetMapping("/{userName}")
     ResponseEntity<List<GitReposDto>> getByUserName(
             @RequestHeader("Accept") String header,
@@ -24,6 +31,10 @@ class GitRestController {
         return ResponseEntity.ok(restService.getByUserName(userName));
     }
 
+    /**
+     * Empty endpoint when there is no @param userName
+     * @throws UserNotFoundException with status 404
+     */
     @GetMapping("/")
     ResponseEntity<String> getWithNoUser() throws UserNotFoundException {
         throw new UserNotFoundException();

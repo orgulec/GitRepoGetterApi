@@ -17,6 +17,12 @@ public class RestApiService {
                 .build();
     }
 
+    /**
+     * Gets repositories data from api url by specific username
+     *
+     * @param userName the specific username of the gitHub user.
+     * @return array of GitRepo with data from Json.
+     */
     public GitRepo[] getRepositoriesByUsername(String userName) {
         return restClient.get()
                 .uri("/users/" + userName + "/repos")
@@ -25,6 +31,13 @@ public class RestApiService {
                 .body(ParameterizedTypeReference.forType(GitRepo[].class));
     }
 
+    /**
+     * Gets branches data from api url by specific username and repository name
+     *
+     * @param userName the specific username of the gitHub user.
+     * @param repoName the specific repository name belonging to the user.
+     * @return array of RepoBranch with data from Json.
+     */
     public RepoBranch[] getBranchesByUsernameAndRepository(String userName, String repoName) {
         return restClient.get()
                 .uri("/repos/" + userName + "/" + repoName + "/branches")
