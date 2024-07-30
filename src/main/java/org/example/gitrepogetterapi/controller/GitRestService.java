@@ -11,16 +11,15 @@ import org.example.gitrepogetterapi.api.git_model.RepoBranch;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GitRestService {
+class GitRestService {
 
     private final RestApiService restApiService;
-    private final DtoMapper mapper = new DtoMapper();
+    private final DtoMapper dtoMapper;
 
     /**
     * Retrieves all public repositories by username and branches to each of it, matches them by repository name and maps it into list of Dto.
@@ -35,13 +34,12 @@ public class GitRestService {
         }
         List<GitRepo> repositories = getRepositoriesByUserName(userName);
 
-        List<List<RepoBranch>> branchesData = new ArrayList<>();
-        repositories.stream()
+        List<List<RepoBranch>> branchesData = repositories.stream()
                 .filter(repo -> !repo.fork())
-                .forEach(repo ->
-                        branchesData.add(getBranchesToRepo(userName, repo.name())));
+                .map(repo -> getBranchesToRepo(userName, repo.name()))
+                .collect(Collectors.toList());
 
-        return mapper.mapReposAndBranchesIntoDto(repositories, branchesData);
+        return dtoMapper.mapReposAndBranchesIntoDto(repositories, branchesData);
     }
 
     /**
@@ -53,8 +51,7 @@ public class GitRestService {
      */
     List<GitRepo> getRepositoriesByUserName(String userName) {
         try {
-            GitRepo[] repositories = restApiService.getRepositoriesByUsername(userName);
-            return Arrays.stream(repositories).toList();
+            return restApiService.getRepositoriesByUsername(userName);
         } catch (HttpClientErrorException e) {
             throw new UserNotFoundException(userName);
         }
@@ -68,7 +65,7 @@ public class GitRestService {
      * @return list of RepoBranch objects with repositories data anda specific name set.
      */
     List<RepoBranch> getBranchesToRepo(String userName, String repoName) {
-        List<RepoBranch> branchList = Arrays.stream(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).toList();
+        List<RepoBranch> branchList = restApiService.getBranchesByUsernameAndRepository(userName, repoName);
         branchList.forEach(branch -> branch.setRepoName(repoName));
         return branchList;
     }

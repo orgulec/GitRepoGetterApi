@@ -3,11 +3,14 @@ package org.example.gitrepogetterapi.api.dto;
 import lombok.Data;
 import org.example.gitrepogetterapi.api.git_model.GitRepo;
 import org.example.gitrepogetterapi.api.git_model.RepoBranch;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
+@Component
 public class DtoMapper {
 
     /**
@@ -18,19 +21,18 @@ public class DtoMapper {
      * @return merged list of GitReposDto,
      */
     public List<GitReposDto> mapReposAndBranchesIntoDto(List<GitRepo> repositories, List<List<RepoBranch>> branchesList) {
-        List<GitReposDto> resultDtoList = new ArrayList<>();
 
-        repositories.stream()
+        List<GitReposDto> resultDtoList = repositories.stream()
                 .filter(repo -> !repo.fork())
-                .forEach(repo -> resultDtoList
-                        .add(new GitReposDto(repo.name(), repo.owner().login())));
+                .map(repo -> new GitReposDto(repo.name(), repo.owner().login(), new ArrayList<>()))
+                .collect(Collectors.toList());
 
         resultDtoList.forEach(dto -> branchesList
                 .forEach(branches -> branches.stream()
-                        .filter(branch -> branch.getRepoName().equals(dto.getName()))
-                        .forEach(branch -> dto.getBranches()
+                        .filter(branch -> branch.getRepoName().equals(dto.name()))
+                        .forEach(branch -> dto.branches()
                                 .add(new GitBranchDto(branch.getName(), branch.getCommit().sha()))
-                )));
+                        )));
         return resultDtoList;
     }
 }

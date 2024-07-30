@@ -12,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -21,10 +23,8 @@ class RestApiServiceTest {
 
     @Autowired
     MockRestServiceServer server;
-
     @Autowired
     RestApiService restApiService;
-
     @Autowired
     ObjectMapper objectMapper;
 
@@ -41,10 +41,10 @@ class RestApiServiceTest {
         server.expect(requestTo(BASE_URL + "/users/" + userName + "/repos"))
                 .andRespond(withSuccess(objectMapper.writeValueAsBytes(data), MediaType.APPLICATION_JSON));
         //then
-        GitRepo[] result = restApiService.getRepositoriesByUsername(userName);
+        List<GitRepo> result = restApiService.getRepositoriesByUsername(userName);
         assertAll(
                 () -> assertNotNull(result),
-                () -> assertEquals(data.length, result.length)
+                () -> assertEquals(data.length, result.size())
         );
     }
 
@@ -60,10 +60,10 @@ class RestApiServiceTest {
         server.expect(requestTo(BASE_URL + "/repos/" + userName + "/" + repoName + "/branches"))
                 .andRespond(withSuccess(objectMapper.writeValueAsBytes(data), MediaType.APPLICATION_JSON));
         //then
-        RepoBranch[] result = restApiService.getBranchesByUsernameAndRepository(userName, repoName);
+        List<RepoBranch> result = restApiService.getBranchesByUsernameAndRepository(userName, repoName);
         assertAll(
                 () -> assertNotNull(result),
-                () -> assertEquals(data.length, result.length)
+                () -> assertEquals(data.length, result.size())
         );
     }
 }

@@ -1,14 +1,24 @@
 package org.example.gitrepogetterapi.api.dto;
 
-import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class GitReposDto {
+public record GitReposDto (
+    String name,
+    String owner,
+    List<GitBranchDto> branches){
 
-    private final String name;
-    private final String owner;
-    private List<GitBranchDto> branches = new ArrayList<>();
+    @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public String owner() {
+        return owner;
+    }
+
+    @Override
+    public List<GitBranchDto> branches() {
+        return branches;
+    }
 }

@@ -7,13 +7,16 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
 @Service
 public class RestApiService {
     private final RestClient restClient;
+    private final String BASE_URL = "https://api.github.com";
 
     public RestApiService(RestClient.Builder builder) {
         this.restClient = builder
-                .baseUrl("https://api.github.com")
+                .baseUrl(BASE_URL)
                 .build();
     }
 
@@ -21,14 +24,14 @@ public class RestApiService {
      * Gets repositories data from api url by specific username
      *
      * @param userName the specific username of the gitHub user.
-     * @return array of GitRepo with data from Json.
+     * @return list of GitRepo with data from Json.
      */
-    public GitRepo[] getRepositoriesByUsername(String userName) {
+    public List<GitRepo> getRepositoriesByUsername(String userName) {
         return restClient.get()
                 .uri("/users/" + userName + "/repos")
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .body(ParameterizedTypeReference.forType(GitRepo[].class));
+                .body(new ParameterizedTypeReference<>() {});
     }
 
     /**
@@ -36,12 +39,12 @@ public class RestApiService {
      *
      * @param userName the specific username of the gitHub user.
      * @param repoName the specific repository name belonging to the user.
-     * @return array of RepoBranch with data from Json.
+     * @return list of RepoBranch with data from Json.
      */
-    public RepoBranch[] getBranchesByUsernameAndRepository(String userName, String repoName) {
+    public List<RepoBranch> getBranchesByUsernameAndRepository(String userName, String repoName) {
         return restClient.get()
                 .uri("/repos/" + userName + "/" + repoName + "/branches")
                 .retrieve()
-                .body(ParameterizedTypeReference.forType(RepoBranch[].class));
+                .body(new ParameterizedTypeReference<>() {});
     }
 }

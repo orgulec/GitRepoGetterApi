@@ -1,10 +1,16 @@
 package org.example.gitrepogetterapi.api.dto;
 
-import lombok.Data;
+public record GitBranchDto(
+        String name,
+        String commitSha) {
 
-@Data
-public class GitBranchDto {
+    @Override
+    public String name() {
+        return name;
+    }
 
-    private final String name;
-    private final String commit_sha;
+    @Override
+    public String commitSha() {
+        return commitSha;
+    }
 }

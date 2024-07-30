@@ -29,7 +29,7 @@ class GitRestControllerTest {
     void getByUserName_shouldReturnGitReposDtoWithStatus200() {
         //given
         String userName = "testUser";
-        GitReposDto mockReposDto = new GitReposDto("testRepo", userName);
+        GitReposDto mockReposDto = new GitReposDto("testRepo", userName, new ArrayList<>());
         List<GitReposDto> mockListOfGitReposDto = new ArrayList<>();
         mockListOfGitReposDto.add(mockReposDto);
         String header = "application/json";

@@ -18,7 +18,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,8 +30,7 @@ class GitRestServiceTest {
     private GitRestService gitRestService;
     @Mock
     private RestApiService restApiService;
-//    @Mock
-//    private DtoMapper mapper;
+
 
     @ParameterizedTest
     @ValueSource(strings = {"", " ", "*", "$user"})
@@ -66,23 +64,22 @@ class GitRestServiceTest {
         RepoBranch mockBranch = new RepoBranch(branchName, new BranchCommit(commitSha));
         mockBranch.setRepoName(repoName);
 
-        GitRepo[] mockReposArray = {mockRepo};
-        RepoBranch[] mockBranchArray = {mockBranch};
+        List<GitRepo> mockReposList = List.of(mockRepo);
+        List<RepoBranch> mockBranchList = List.of(mockBranch);
 
-        GitReposDto mockRepoDto = new GitReposDto(repoName, userName);
-        mockRepoDto.setBranches(List.of(new GitBranchDto(branchName, commitSha)));
+        GitReposDto mockRepoDto = new GitReposDto(repoName, userName,List.of(new GitBranchDto(branchName, commitSha)));
         List<GitReposDto> expectedDtoList = List.of(mockRepoDto);
         //when
-        when(restApiService.getRepositoriesByUsername(userName)).thenReturn(mockReposArray);
-        when(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).thenReturn(mockBranchArray);
+        when(restApiService.getRepositoriesByUsername(userName)).thenReturn(mockReposList);
+        when(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).thenReturn(mockBranchList);
         //then
         List<GitReposDto> result = gitRestService.getByUserName(userName);
         assertAll(
                 () -> assertNotNull(result),
                 () -> assertEquals(expectedDtoList.size(), result.size()),
-                () -> assertEquals(expectedDtoList.getFirst().getName(), result.getFirst().getName()),
-                () -> assertEquals(expectedDtoList.getFirst().getOwner(), result.getFirst().getOwner()),
-                () -> assertEquals(expectedDtoList.getFirst().getBranches().size(), result.getFirst().getBranches().size())
+                () -> assertEquals(expectedDtoList.getFirst().name(), result.getFirst().name()),
+                () -> assertEquals(expectedDtoList.getFirst().owner(), result.getFirst().owner()),
+                () -> assertEquals(expectedDtoList.getFirst().branches().size(), result.getFirst().branches().size())
         );
     }
 
@@ -102,11 +99,10 @@ class GitRestServiceTest {
         String userName = "testUser";
         String repoName = "testRepo";
         GitRepo mockRepo = new GitRepo(repoName, new RepoOwner(userName), false);
-        GitRepo[] mockReposArray = {mockRepo};
-        List<GitRepo> expectedRepoList = Arrays.stream(mockReposArray).toList();
+        List<GitRepo> expectedRepoList = List.of(mockRepo);
 
         //when
-        when(restApiService.getRepositoriesByUsername(userName)).thenReturn(mockReposArray);
+        when(restApiService.getRepositoriesByUsername(userName)).thenReturn(expectedRepoList);
         //then
         List<GitRepo> result = gitRestService.getRepositoriesByUserName(userName);
         assertAll(
@@ -126,11 +122,10 @@ class GitRestServiceTest {
         String commitSha = "testCommit_sha";
         RepoBranch mockBranch = new RepoBranch(branchName, new BranchCommit(commitSha));
         mockBranch.setRepoName(repoName);
-        RepoBranch[] mockBranchArray = {mockBranch};
 
-        List<RepoBranch> expectedBranchList = Arrays.stream(mockBranchArray).toList();
+        List<RepoBranch> expectedBranchList = List.of(mockBranch);
         //when
-        when(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).thenReturn(mockBranchArray);
+        when(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).thenReturn(expectedBranchList);
         //then
         List<RepoBranch> result = gitRestService.getBranchesToRepo(userName, repoName);
         assertAll(

@@ -33,10 +33,11 @@ class GitRestController {
 
     /**
      * Empty endpoint when there is no @param userName
+     *
      * @throws UserNotFoundException with status 404
      */
     @GetMapping("/")
-    ResponseEntity<String> getWithNoUser() throws UserNotFoundException {
+    void getWithNoUser() throws UserNotFoundException {
         throw new UserNotFoundException();
     }
 }
