@@ -1,6 +1,7 @@
 package org.example.gitrepogetterapi.controller;
 
 import org.example.gitrepogetterapi.api.RestApiService;
+import org.example.gitrepogetterapi.api.dto.DtoMapper;
 import org.example.gitrepogetterapi.api.dto.GitBranchDto;
 import org.example.gitrepogetterapi.api.dto.GitReposDto;
 import org.example.gitrepogetterapi.api.exceptions.InvalidUserNameException;
@@ -30,6 +31,8 @@ class GitRestServiceTest {
     private GitRestService gitRestService;
     @Mock
     private RestApiService restApiService;
+    @Mock
+    private DtoMapper dtoMapper;
 
 
     @ParameterizedTest
@@ -72,6 +75,7 @@ class GitRestServiceTest {
         //when
         when(restApiService.getRepositoriesByUsername(userName)).thenReturn(mockReposList);
         when(restApiService.getBranchesByUsernameAndRepository(userName, repoName)).thenReturn(mockBranchList);
+        when(dtoMapper.mapReposAndBranchesIntoDto(mockReposList, List.of(mockBranchList))).thenReturn(expectedDtoList);
         //then
         List<GitReposDto> result = gitRestService.getByUserName(userName);
         assertAll(

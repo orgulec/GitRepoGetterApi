@@ -13,9 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DtoMapperTest {
 
-    @Autowired
-    DtoMapper dtoMapper;
-
+    private final DtoMapper dtoMapper = new DtoMapper();
     @Test
     void mapReposAndBranchesIntoDto() {
         //given

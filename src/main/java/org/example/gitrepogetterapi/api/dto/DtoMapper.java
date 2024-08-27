@@ -1,6 +1,7 @@
 package org.example.gitrepogetterapi.api.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.example.gitrepogetterapi.api.git_model.GitRepo;
 import org.example.gitrepogetterapi.api.git_model.RepoBranch;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@NoArgsConstructor
 @Component
 public class DtoMapper {
 
