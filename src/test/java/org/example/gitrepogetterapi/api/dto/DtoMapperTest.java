@@ -5,7 +5,6 @@ import org.example.gitrepogetterapi.api.git_model.GitRepo;
 import org.example.gitrepogetterapi.api.git_model.RepoBranch;
 import org.example.gitrepogetterapi.api.git_model.RepoOwner;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
@@ -14,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class DtoMapperTest {
 
     private final DtoMapper dtoMapper = new DtoMapper();
+
+
     @Test
     void mapReposAndBranchesIntoDto() {
         //given
@@ -42,9 +43,9 @@ class DtoMapperTest {
         //then
         List<GitReposDto> result = dtoMapper.mapReposAndBranchesIntoDto(mockRepositories, mockBranchesList);
         assertAll(
-                ()->assertNotNull(result),
-                ()->assertEquals(expectedDtoList.size(), result.size()),
-                ()->assertEquals(expectedDtoList.getFirst().branches().size(), result.getFirst().branches().size())
+                () -> assertNotNull(result),
+                () -> assertEquals(expectedDtoList.size(), result.size()),
+                () -> assertEquals(expectedDtoList.getFirst().branches().size(), result.getFirst().branches().size())
         );
     }
 }

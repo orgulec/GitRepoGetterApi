@@ -3,75 +3,103 @@ package org.example.gitrepogetterapi.controller;
 import org.example.gitrepogetterapi.api.dto.GitReposDto;
 import org.example.gitrepogetterapi.api.exceptions.InvalidUserNameException;
 import org.example.gitrepogetterapi.api.exceptions.UserNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(GitRestController.class)
 class GitRestControllerTest {
 
-    @InjectMocks
-    private GitRestController gitRestController;
-    @Mock
-    private GitRestService gitRestService;
+    @Autowired
+    MockMvc mockMvc;
+
+    @MockBean
+    GitRestService gitRestService;
+
+    @BeforeEach
+    void setUp() {
+
+    }
 
     @Test
-    void getByUserName_shouldReturnGitReposDtoWithStatus200() {
+    void getByUserName_shouldReturnGitReposDtoList() throws Exception {
         //given
         String userName = "testUser";
-        GitReposDto mockReposDto = new GitReposDto("testRepo", userName, new ArrayList<>());
-        List<GitReposDto> mockListOfGitReposDto = new ArrayList<>();
-        mockListOfGitReposDto.add(mockReposDto);
-        String header = "application/json";
+        String name = "repoName";
+        GitReposDto gitDto = new GitReposDto(name, userName, new ArrayList<>());
+        List<GitReposDto> gitDtoList = List.of(gitDto);
+
+        String jsonResponse = """
+                [
+                       {
+                            "name": "repoName",
+                            "owner": "testUser",
+                            "branches": []
+                       }
+                ]
+                """;
+
         //when
-        when(gitRestService.getByUserName(userName)).thenReturn(mockListOfGitReposDto);
+        when(gitRestService.getByUserName(userName)).thenReturn(gitDtoList);
         //then
-        ResponseEntity<List<GitReposDto>> result = gitRestController.getByUserName(header, userName);
-        assertAll(
-                () -> assertEquals(HttpStatus.OK, result.getStatusCode()),
-                () -> assertEquals(ResponseEntity.ok(mockListOfGitReposDto), result),
-                () -> assertNotNull(result.getBody()),
-                () -> assertEquals(mockListOfGitReposDto.size(), result.getBody().size())
-        );
+        mockMvc.perform(get("/" + userName)
+                        .header("Accept", "application/json")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().json(jsonResponse));
     }
 
     @Test
-    void getByUserName_shouldReturnUserNotFoundException() {
+    void getByUserName_shouldThrowExceptionWhenUserNameIsEmpty() throws Exception {
+        //given
+        String userName = "";
+        //when
+        when(gitRestService.getByUserName(userName)).thenThrow(UserNotFoundException.class);
+        //then
+        mockMvc.perform(get("/" + userName)
+                        .header("Accept", "application/json")
+                )
+                .andExpect(status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {" ", "*", "$user"})
+    void getByUserName_shouldThrowExceptionWhenUserNameIsInvalid(String userName) throws Exception {
+        //given
+        //when
+        when(gitRestService.getByUserName(userName)).thenThrow(InvalidUserNameException.class);
+        //then
+        mockMvc.perform(get("/" + userName)
+                        .header("Accept", "application/json")
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getByUserName_shouldThrowExceptionWhenUserIsNotFound() throws Exception {
         //given
         String userName = "testUser";
-        String header = "application/json";
+
         //when
-        when(gitRestService.getByUserName(userName)).thenThrow(new UserNotFoundException(userName));
+        when(gitRestService.getByUserName(userName)).thenThrow(UserNotFoundException.class);
         //then
-        assertThrows(UserNotFoundException.class, () -> gitRestController.getByUserName(header, userName));
+        mockMvc.perform(get("/" + userName)
+                        .header("Accept", "application/json")
+                )
+                .andExpect(status().isNotFound());
     }
 
-    @Test
-    void getByUserName_shouldReturnWrongUserNameException() {
-        //given
-        String userName = "test User";
-        String header = "application/json";
-        //when
-        when(gitRestService.getByUserName(userName)).thenThrow(new InvalidUserNameException());
-        //then
-        assertThrows(InvalidUserNameException.class, () -> gitRestController.getByUserName(header, userName));
-    }
-
-    @Test
-    void getWithNoUser_shouldReturnUserNotFoundException() {
-        //given
-        //when
-        //then
-        assertThrows(UserNotFoundException.class, () -> gitRestController.getWithNoUser());
-    }
 }

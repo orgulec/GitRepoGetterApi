@@ -20,7 +20,7 @@ A simple REST application that allows you to directly download a list of reposit
 ### Technologies used:
 * Java 21
 * Spring Boot 3.3.1
-* Maven, Lombok, JUnit, Mockito
+* Maven, Lombok, JUnit, Mockito, MockMvc
 
 <hr>
 25.07.2024
